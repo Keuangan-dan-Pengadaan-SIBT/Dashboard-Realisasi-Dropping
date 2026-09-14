@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Realisasi Dropping SBU Sulawesi dan IBT 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #f97316;
+            --accent-blue: #0ea5e9;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #f59e0b;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 24px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo-container {
+            background: #ffffff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .header-title-box h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .powerbi-tag {
+            background: rgba(14, 165, 233, 0.15);
+            color: var(--accent-blue);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+        .filter-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        select#filterBidang {
+            background: #0f172a;
+            color: #fff;
+            border: 1px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            min-width: 260px;
+            transition: all 0.2s;
+        }
+        select#filterBidang:hover {
+            border-color: #ea580c;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary);
+        }
+        .kpi-card.blue::after { background: var(--accent-blue); }
+        .kpi-card.green::after { background: var(--accent-green); }
+        .kpi-card.yellow::after { background: var(--accent-yellow); }
+        .kpi-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 28px 0 16px 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .main-chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            height: 400px;
+        }
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .breakdown-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .breakdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .breakdown-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            max-width: 70%;
+        }
+        .badge-ytd {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .mini-chart-box {
+            height: 180px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--card-border);
+        }
+        th:first-child, td:first-child {
+            text-align: left;
+        }
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .total-row td {
+            font-weight: 700;
+            color: var(--primary);
+            background: rgba(249, 115, 22, 0.05);
+            border-top: 2px solid var(--primary);
+        }
+        .highlight-row td {
+            font-weight: 600;
+            background: rgba(14, 165, 233, 0.05);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="logo-container">
+                <svg width="150" height="40" viewBox="0 0 290 80" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="70" height="70" fill="#fee100" rx="6"/>
+                    <path d="M42 12L22 42H38L28 68L58 34H42L52 12H42Z" fill="#ed1c24"/>
+                    <path d="M14 36C14 36 20 32 26 36C32 40 38 36 38 36" stroke="#00a3e0" stroke-width="4" fill="none"/>
+                    <path d="M14 46C14 46 20 42 26 46C32 50 38 46 38 46" stroke="#00a3e0" stroke-width="4" fill="none"/>
+                    <path d="M14 56C14 56 20 52 26 56C32 60 38 56 38 56" stroke="#00a3e0" stroke-width="4" fill="none"/>
+                    <text x="82" y="42" font-family="Arial, sans-serif" font-weight="bold" font-size="34" fill="#00a3e0">PT PLN ICON PLUS</text>
+                    <text x="82" y="70" font-family="Arial, sans-serif" font-weight="500" font-size="22" fill="#2c3e50">Icon Plus</text>
+                </svg>
+            </div>
+            <div class="header-title-box">
+                <div class="powerbi-tag">Looker Studio / Power BI Style</div>
+                <h1>Realisasi Dropping SBU Sulawesi dan IBT</h1>
+                <div class="subtitle">Executive Financial Dashboard • Tahun Anggaran 2026</div>
+            </div>
+        </div>
+        <div class="filter-wrapper">
+            <label class="filter-label" for="filterBidang">Excel Slicer: Filter Bidang</label>
+            <select id="filterBidang" onchange="updateDashboard()">
+                <option value="ALL">Semua Bidang (Keseluruhan)</option>
+                <option value="0">Administrasi dan Umum</option>
+                <option value="1">Operasi, Pemeliharaan dan Aset</option>
+                <option value="2">Pembangunan & Delivery Layanan</option>
+                <option value="3">Pemasaran dan Penjualan B2B</option>
+                <option value="4">Pemasaran dan Penjualan Ritel</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title" id="kpiTitleTotal">Total Realisasi (YTD Jan-Agu)</div>
+            <div class="kpi-value" id="kpiTotal">Rp 7.586.998.019</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-title">Rata-Rata Bulanan</div>
+            <div class="kpi-value" id="kpiAvg">Rp 951.788.983</div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-title">Realisasi Tertinggi</div>
+            <div class="kpi-value" id="kpiMax">Agustus (Rp 1.130.401.054)</div>
+        </div>
+        <div class="kpi-card yellow">
+            <div class="kpi-title">Saldo Kas Final (Agustus)</div>
+            <div class="kpi-value">Rp 29.184.352</div>
+        </div>
+    </div>
+
+    <!-- 1. Tren Realisasi Utama (Diagram Garis) -->
+    <div class="section-title">📈 Tren Realisasi Pemakaian Dana Dropping 2026</div>
+    <div class="main-chart-container">
+        <canvas id="mainTrendChart"></canvas>
+    </div>
+
+    <!-- 2. Breakdown per Bidang -->
+    <div class="section-title" id="sectionBreakdownTitle">📑 Breakdown Realisasi per Bidang (Bulanan)</div>
+    <div class="breakdown-grid" id="breakdownGrid"></div>
+
+    <!-- 3. Tabel Rinci Laporan Keuangan Dropping -->
+    <div class="section-title">📋 Tabel Rincian Keuangan & Rekapitulasi Dropping</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kategori / Uraian</th>
+                    <th>Januari</th>
+                    <th>Februari</th>
+                    <th>Maret</th>
+                    <th>April</th>
+                    <th>Mei</th>
+                    <th>Juni</th>
+                    <th>Juli</th>
+                    <th>Agustus</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Diisi via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus'];
+        const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu'];
+        
+        const bidangData = [
+            {
+                name: 'Sub Total Administrasi dan Umum',
+                shortName: 'Administrasi dan Umum',
+                ytdVal: 3420910554,
+                ytdStr: 'Rp 3.420.910.554',
+                data: [431033238, 304718835, 428654850, 578075593, 345173671, 378057662, 606184462, 375103754],
+                color: '#0ea5e9'
+            },
+            {
+                name: 'Sub Total Operasi, Pemeliharaan dan Aset',
+                shortName: 'Operasi, Pemeliharaan & Aset',
+                ytdVal: 1925284153,
+                ytdStr: 'Rp 1.925.284.153',
+                data: [46447860, 185314398, 359155128, 248544294, 391526429, 219821133, 180505365, 293969546],
+                color: '#f97316'
+            },
+            {
+                name: 'Sub Total Pembangunan dan Delivery Layanan',
+                shortName: 'Pembangunan & Delivery',
+                ytdVal: 849450758,
+                ytdStr: 'Rp 849.450.758',
+                data: [44796095, 45680266, 81857954, 156130769, 109271015, 91032568, 105933225, 214748958],
+                color: '#10b981'
+            },
+            {
+                name: 'Sub Total Pemasaran dan Penjualan B2B',
+                shortName: 'Pemasaran & Penjualan B2B',
+                ytdVal: 746459374,
+                ytdStr: 'Rp 746.459.374',
+                data: [80331159, 111195963, 148955129, 38386321, 129357954, 59733249, 58718549, 119781050],
+                color: '#8b5cf6'
+            },
+            {
+                name: 'Sub Total Pemasaran dan Penjualan Ritel',
+                shortName: 'Pemasaran & Penjualan Ritel',
+                ytdVal: 644893180,
+                ytdStr: 'Rp 644.893.180',
+                data: [99826817, 41088192, 60211143, 54640079, 61914825, 122951867, 77462511, 126797746],
+                color: '#f59e0b'
+            }
+        ];
+
+        const otherRows = [
+            { name: 'REALISASI PEMAIKAIAN DANA DROPPING', data: [702435169, 687997654, 1078834204, 1075776964, 1037243894, 871596479, 1028804112, 1130401054], isTotal: true },
+            { name: 'Permohonan Dropping Via Nodin', data: [775673970, 1209145748, 1143513528, 1222019828, 1361084208, 1037243894, 1197952120, 1738662648], muted: true },
+            { name: 'Persetujuan Dropping', data: [700000000, 690000000, 1100000000, 1100000000, 1100000000, 900000000, 900000000, 950000000], muted: true },
+            { name: 'Dropping Tambahan', data: [0, 0, 0, 0, 0, 0, 150000000, 180000000], muted: true },
+            { name: 'Sisa Realisasi Dropping', data: [27564831, 29567178, 50974696, 75197732, 137953838, 0, 51114840, 29184350], muted: true },
+            { name: 'Saldo Bank Akhir Periode', data: [1107488, 1101133, 1089051, 1100000, 0, 0, 0, 1103456], muted: true },
+            { name: 'Saldo Kas Akhir Periode*', data: [27564832, 29807901, 50974696, 75197732, 0, 0, 51114840, 29184352], muted: true },
+            { name: 'Pengembalian Saldo ke Rek Induk', data: [0, 0, 0, 0, 58438406, 48000000, 21529436, 0], muted: true },
+            { name: 'Saldo Kas Final Akhir Periode*', data: [27564832, 29808900, 50974696, 75197732, 69515432, 29918952, 29585404, 29184352], highlight: true }
+        ];
+
+        let mainChart, miniCharts = [];
+
+        function formatIDR(num) {
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+
+        function renderTable(selectedIndex) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            // Render Subtotals
+            bidangData.forEach((b, idx) => {
+                if (selectedIndex === 'ALL' || selectedIndex == idx) {
+                    let tr = document.createElement('tr');
+                    let html = `<td style="font-weight:600; text-align:left;">${b.name}</td>`;
+                    b.data.forEach(val => {
+                        html += `<td>${val.toLocaleString('id-ID')}</td>`;
+                    });
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // Render Total & Other summary rows if ALL is selected
+            if (selectedIndex === 'ALL') {
+                otherRows.forEach(row => {
+                    let tr = document.createElement('tr');
+                    if (row.isTotal) tr.className = 'total-row';
+                    if (row.highlight) tr.className = 'highlight-row';
+                    
+                    let html = `<td style="text-align:left; ${row.muted ? 'color: var(--text-muted);' : ''}">${row.name}</td>`;
+                    row.data.forEach(val => {
+                        html += `<td>${val === 0 ? '-' : val.toLocaleString('id-ID')}</td>`;
+                    });
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function updateDashboard() {
+            const selected = document.getElementById('filterBidang').value;
+            const gridContainer = document.getElementById('breakdownGrid');
+            const sectionTitle = document.getElementById('sectionBreakdownTitle');
+            
+            // Destroy existing mini charts
+            miniCharts.forEach(c => c.destroy());
+            miniCharts = [];
+            gridContainer.innerHTML = '';
+
+            let activeData = [];
+            let totalYTD = 0;
+
+            if (selected === 'ALL') {
+                activeData = [702435169, 687997654, 1078834204, 1075776964, 1037243894, 871596479, 1028804112, 1130401054];
+                totalYTD = 7586998019;
+                document.getElementById('kpiTitleTotal').innerText = "Total Realisasi (YTD Jan-Agu)";
+                document.getElementById('kpiTotal').innerText = formatIDR(totalYTD);
+                document.getElementById('kpiAvg').innerText = formatIDR(951788983);
+                document.getElementById('kpiMax').innerText = "Agustus (Rp 1.130.401.054)";
+                sectionTitle.innerText = "📑 Breakdown Realisasi per Bidang (Bulanan)";
+
+                // Render all 5 cards
+                bidangData.forEach((item, index) => {
+                    const cardId = `miniChart_${index}`;
+                    gridContainer.insertAdjacentHTML('beforeend', `
+                        <div class="breakdown-card">
+                            <div class="breakdown-header">
+                                <div class="breakdown-title">${item.shortName}</div>
+                                <div class="badge-ytd">YTD: ${item.ytdStr}</div>
+                            </div>
+                            <div class="mini-chart-box"><canvas id="${cardId}"></canvas></div>
+                        </div>
+                    `);
+                    const miniCtx = document.getElementById(cardId).getContext('2d');
+                    miniCharts.push(new Chart(miniCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: shortMonths,
+                            datasets: [{ data: item.data, backgroundColor: item.color, borderRadius: 4, barThickness: 'flex' }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => formatIDR(c.raw) } } },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                                y: { grid: { color: 'rgba(51, 65, 85, 0.4)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => (v/1000000).toFixed(0) + 'jt' } }
+                            }
+                        }
+                    }));
+                });
+            } else {
+                const b = bidangData[selected];
+                activeData = b.data;
+                totalYTD = b.ytdVal;
+                document.getElementById('kpiTitleTotal').innerText = `Total YTD (${b.shortName})`;
+                document.getElementById('kpiTotal').innerText = b.ytdStr;
+                const avg = Math.round(totalYTD / 8);
+                document.getElementById('kpiAvg').innerText = formatIDR(avg);
+                const maxVal = Math.max(...b.data);
+                const maxIdx = b.data.indexOf(maxVal);
+                document.getElementById('kpiMax').innerText = `${months[maxIdx]} (${formatIDR(maxVal)})`;
+                sectionTitle.innerText = `📑 Detail Tren Bulanan - ${b.name}`;
+
+                // Render single prominent card
+                gridContainer.insertAdjacentHTML('beforeend', `
+                    <div class="breakdown-card" style="grid-column: 1 / -1;">
+                        <div class="breakdown-header">
+                            <div class="breakdown-title" style="font-size: 16px;">${b.name}</div>
+                            <div class="badge-ytd" style="font-size: 13px; padding: 6px 12px;">Total YTD: ${b.ytdStr}</div>
+                        </div>
+                        <div class="mini-chart-box" style="height: 260px;">
+                            <canvas id="singleMiniChart"></canvas>
+                        </div>
+                    </div>
+                `);
+                const miniCtx = document.getElementById('singleMiniChart').getContext('2d');
+                miniCharts.push(new Chart(miniCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{ data: b.data, backgroundColor: b.color, borderRadius: 6, barThickness: 'flex' }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => formatIDR(c.raw) } } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 12 } } },
+                            y: { grid: { color: 'rgba(51, 65, 85, 0.4)' }, ticks: { color: '#94a3b8', font: { size: 12 }, callback: (v) => (v/1000000).toFixed(0) + 'jt' } }
+                        }
+                    }
+                }));
+            }
+
+            // Update Main Line Chart
+            mainChart.data.datasets[0].data = activeData;
+            mainChart.data.datasets[0].label = selected === 'ALL' ? 'Realisasi Dropping (Rp)' : bidangData[selected].shortName;
+            mainChart.update();
+
+            // Update Table
+            renderTable(selected);
+        }
+
+        // Initialize Main Line Chart
+        const mainCtx = document.getElementById('mainTrendChart').getContext('2d');
+        mainChart = new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Realisasi Dropping (Rp)',
+                    data: [702435169, 687997654, 1078834204, 1075776964, 1037243894, 871596479, 1028804112, 1130401054],
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#f97316',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' Rp ' + context.raw.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { color: '#334155' },
+                        ticks: { 
+                            color: '#94a3b8',
+                            callback: function(value) {
+                                return (value / 1000000000).toFixed(1) + ' M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initial Load
+        updateDashboard();
+    </script>
+</body>
+</html>
